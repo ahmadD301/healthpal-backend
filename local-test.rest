@@ -1,0 +1,5 @@
+### Test Google
+GET https://jsonplaceholder.typicode.com/posts/1
+
+### Test The Local Server 
+GET http://localhost:5000/api/docs
