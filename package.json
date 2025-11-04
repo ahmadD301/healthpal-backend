@@ -4,10 +4,16 @@
   "description": "This is the RESTful API backend for **HealthPal**, a medical platform that connects patients, doctors, and NGOs. It supports functionalities such as user authentication, appointment booking, donation tracking, and AI-based medical consultations.",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/server.js"
+    "start": "node server.js",
+    "dev": "nodemon src/server.js",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch"
   },
-  "keywords": [],
+  "keywords": [
+    "healthcare",
+    "telemedicine",
+    "api",
+    "rest"],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -15,7 +21,15 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "mysql2": "^3.15.3",
-    "sequelize": "^6.37.7"
+    "sequelize": "^6.37.7",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
+    "axios": "^1.6.2"
   },
   "devDependencies": {
     "eslint": "^9.39.0",
