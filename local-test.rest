@@ -1,5 +1,467 @@
-### Test Google
-GET https://jsonplaceholder.typicode.com/posts/1
+### HealthPal API Testing File
+### Use with REST Client extension in VS Code
+### Base URL
+@baseUrl = http://localhost:3000/api
+@token = YOUR_JWT_TOKEN_HERE
 
-### Test The Local Server 
-GET http://localhost:5000/api/docs
+### ==================== AUTHENTICATION ====================
+
+### Register Patient
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "full_name": "Ahmad Hassan",
+  "email": "ahmad@example.com",
+  "password": "SecurePass123!",
+  "role": "patient",
+  "phone": "+970599123456"
+}
+
+### Register Doctor
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "full_name": "Dr. Sarah Mahmoud",
+  "email": "dr.sarah@example.com",
+  "password": "DocPass123!",
+  "role": "doctor",
+  "phone": "+970599234567"
+}
+
+### Register Donor
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "full_name": "Ali Khalil",
+  "email": "ali.donor@example.com",
+  "password": "DonorPass123!",
+  "role": "donor",
+  "phone": "+970599345678"
+}
+
+### Login as Patient
+# @name loginPatient
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "ahmad@example.com",
+  "password": "SecurePass123!"
+}
+
+### Login as Doctor
+# @name loginDoctor
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "dr.sarah@example.com",
+  "password": "DocPass123!"
+}
+
+### Login as Donor
+# @name loginDonor
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "ali.donor@example.com",
+  "password": "DonorPass123!"
+}
+
+### ==================== USER PROFILE ====================
+
+### Get Current User Profile
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{token}}
+
+### Update User Profile
+PUT {{baseUrl}}/users/me
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "full_name": "Ahmad Hassan Updated",
+  "phone": "+970599999999"
+}
+
+### ==================== PATIENT PROFILE ====================
+
+### Create/Update Patient Profile
+POST {{baseUrl}}/patients/profile
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "age": 32,
+  "gender": "male",
+  "blood_type": "A+",
+  "medical_history": "Diabetes Type 2, Hypertension",
+  "location": "Ramallah, West Bank"
+}
+
+### Get Patient Profile by ID
+GET {{baseUrl}}/patients/1
+Authorization: Bearer {{token}}
+
+### ==================== DOCTOR PROFILE ====================
+
+### Create/Update Doctor Profile
+POST {{baseUrl}}/doctors/profile
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "specialty": "Internal Medicine",
+  "license_no": "PS-MED-12345",
+  "experience_years": 8,
+  "consultation_fee": 50.00
+}
+
+### Get All Available Doctors
+GET {{baseUrl}}/doctors
+Authorization: Bearer {{token}}
+
+### Get Doctors by Specialty
+GET {{baseUrl}}/doctors?specialty=Internal Medicine
+Authorization: Bearer {{token}}
+
+### ==================== CONSULTATIONS ====================
+
+### Book a Consultation (Patient)
+POST {{baseUrl}}/consultations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "doctor_id": 2,
+  "consultation_date": "2025-11-15 14:00:00",
+  "mode": "video",
+  "notes": "Experiencing severe headaches for the past week"
+}
+
+### Get My Consultations
+GET {{baseUrl}}/consultations
+Authorization: Bearer {{token}}
+
+### Update Consultation Status (Doctor)
+PATCH {{baseUrl}}/consultations/1/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "accepted"
+}
+
+### ==================== MESSAGING ====================
+
+### Send Message in Consultation
+POST {{baseUrl}}/consultations/1/messages
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "message_text": "Hello doctor, I've been having severe headaches lately."
+}
+
+### Get All Messages in Consultation
+GET {{baseUrl}}/consultations/1/messages
+Authorization: Bearer {{token}}
+
+### ==================== SPONSORSHIPS ====================
+
+### Create Sponsorship Campaign (Patient)
+POST {{baseUrl}}/sponsorships
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "treatment_type": "Kidney Dialysis",
+  "goal_amount": 5000.00,
+  "description": "Need funding for 10 dialysis sessions. Suffering from chronic kidney disease."
+}
+
+### Get All Open Sponsorships
+GET {{baseUrl}}/sponsorships
+Authorization: Bearer {{token}}
+
+### Donate to Sponsorship (Donor)
+POST {{baseUrl}}/sponsorships/1/donate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 500.00,
+  "payment_method": "credit_card"
+}
+
+### ==================== MEDICINE REQUESTS ====================
+
+### Create Medicine Request (Patient)
+POST {{baseUrl}}/medicine-requests
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "medicine_name": "Insulin (Lantus)",
+  "quantity": 5,
+  "urgency": "high"
+}
+
+### Get All Medicine Requests
+GET {{baseUrl}}/medicine-requests
+Authorization: Bearer {{token}}
+
+### Get Medicine Requests by Urgency
+GET {{baseUrl}}/medicine-requests?urgency=high
+Authorization: Bearer {{token}}
+
+### Get Medicine Requests by Status
+GET {{baseUrl}}/medicine-requests?status=pending
+Authorization: Bearer {{token}}
+
+### Update Medicine Request Status
+PATCH {{baseUrl}}/medicine-requests/1/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "in_progress"
+}
+
+### ==================== EQUIPMENT REGISTRY ====================
+
+### List Medical Equipment
+POST {{baseUrl}}/equipment
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "item_name": "Oxygen Concentrator",
+  "description": "Portable oxygen concentrator, 5L/min capacity",
+  "quantity": 2,
+  "location": "Gaza City"
+}
+
+### Get Available Equipment
+GET {{baseUrl}}/equipment
+Authorization: Bearer {{token}}
+
+### Get Equipment by Location
+GET {{baseUrl}}/equipment?location=Gaza
+Authorization: Bearer {{token}}
+
+### ==================== HEALTH GUIDES ====================
+
+### Create Health Guide (Doctor/Admin)
+POST {{baseUrl}}/health-guides
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Managing Diabetes at Home",
+  "description": "A comprehensive guide on monitoring blood sugar, diet, and medication for diabetic patients.",
+  "category": "Chronic Disease Management",
+  "language": "ar"
+}
+
+### Get All Health Guides
+GET {{baseUrl}}/health-guides
+
+### Get Health Guides by Category
+GET {{baseUrl}}/health-guides?category=Chronic Disease Management
+
+### Get Health Guides by Language
+GET {{baseUrl}}/health-guides?language=ar
+
+### ==================== PUBLIC HEALTH ALERTS ====================
+
+### Create Alert (Admin)
+POST {{baseUrl}}/alerts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "type": "Disease Outbreak",
+  "message": "Reported cases of cholera in northern region. Boil water before drinking.",
+  "region": "Northern West Bank",
+  "severity": "high",
+  "source": "Ministry of Health"
+}
+
+### Get All Recent Alerts
+GET {{baseUrl}}/alerts
+
+### Get Alerts by Region
+GET {{baseUrl}}/alerts?region=Northern West Bank
+
+### Get Alerts by Severity
+GET {{baseUrl}}/alerts?severity=high
+
+### ==================== MENTAL HEALTH SESSIONS ====================
+
+### Schedule Mental Health Session
+POST {{baseUrl}}/mental-health-sessions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "counselor_id": 5,
+  "session_date": "2025-11-16 16:00:00",
+  "mode": "video",
+  "notes": "Dealing with anxiety and stress"
+}
+
+### Get My Mental Health Sessions
+GET {{baseUrl}}/mental-health-sessions
+Authorization: Bearer {{token}}
+
+### ==================== NGO ROUTES ====================
+
+### Register NGO (Admin)
+POST {{baseUrl}}/ngos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Palestinian Medical Relief Society",
+  "contact_info": "info@pmrs.ps | +970-2-2406546"
+}
+
+### Get All Verified NGOs
+GET {{baseUrl}}/ngos
+Authorization: Bearer {{token}}
+
+### Create NGO Mission
+POST {{baseUrl}}/ngo-missions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "ngo_id": 1,
+  "mission_type": "Mobile Clinic",
+  "mission_date": "2025-11-20 09:00:00",
+  "location": "Hebron Old City",
+  "doctor_needed": true,
+  "description": "Free medical checkups and basic medications for elderly residents"
+}
+
+### Get All NGO Missions
+GET {{baseUrl}}/ngo-missions
+Authorization: Bearer {{token}}
+
+### ==================== ERROR TESTING ====================
+
+### Test 404 - Invalid Route
+GET {{baseUrl}}/invalid-route
+Authorization: Bearer {{token}}
+
+### Test 401 - No Token
+GET {{baseUrl}}/users/me
+
+### Test 401 - Invalid Token
+GET {{baseUrl}}/users/me
+Authorization: Bearer invalid.token.here
+
+### Test 400 - Missing Required Fields
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com"
+}
+
+### ==================== COMPLEX QUERIES ====================
+
+### Get High Urgency Pending Medicine Requests
+GET {{baseUrl}}/medicine-requests?urgency=high&status=pending
+Authorization: Bearer {{token}}
+
+### Get Doctors with Specific Specialty
+GET {{baseUrl}}/doctors?specialty=Pediatrics
+Authorization: Bearer {{token}}
+
+### Get Health Guides in Arabic for Specific Category
+GET {{baseUrl}}/health-guides?language=ar&category=First Aid
+Authorization: Bearer {{token}}
+
+### ==================== EXTERNAL API INTEGRATION ====================
+
+### Get Air Quality Data
+GET {{baseUrl}}/external/air-quality
+Authorization: Bearer {{token}}
+
+### Translate Text (Arabic to English)
+POST {{baseUrl}}/external/translate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "text": "مرحبا، أحتاج إلى مساعدة طبية",
+  "targetLang": "en"
+}
+
+### Translate Text (English to Arabic)
+POST {{baseUrl}}/external/translate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "text": "Hello, I need medical help",
+  "targetLang": "ar"
+}
+
+### Get Medicine Information
+GET {{baseUrl}}/external/medicine-info/Aspirin
+Authorization: Bearer {{token}}
+
+### Get Medicine Information (Insulin)
+GET {{baseUrl}}/external/medicine-info/Insulin
+Authorization: Bearer {{token}}
+
+### Get Disease Outbreak Data (COVID-19)
+GET {{baseUrl}}/external/disease-outbreaks
+
+### Get Health News (General)
+GET {{baseUrl}}/external/health-news?topic=health&language=en
+
+### Get Health News (Specific Topic)
+GET {{baseUrl}}/external/health-news?topic=diabetes&language=en
+
+### Send SMS Notification (Admin Only)
+POST {{baseUrl}}/external/send-sms
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "phoneNumber": "+970599123456",
+  "message": "Your consultation is scheduled for tomorrow at 2 PM"
+}
+
+### Geocode Location
+GET {{baseUrl}}/external/geocode?address=Ramallah, West Bank
+Authorization: Bearer {{token}}
+
+### Process Payment (Donation)
+POST {{baseUrl}}/external/process-payment
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 50.00,
+  "paymentMethodId": "pm_card_visa"
+}
+
+### Broadcast Emergency Alert (Admin Only)
+POST {{baseUrl}}/external/emergency-alert
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "message": "Urgent: Cholera outbreak reported in northern region. Boil water before drinking.",
+  "region": "Northern West Bank",
+  "channels": ["sms", "email"]
+}
