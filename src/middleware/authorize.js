@@ -1,4 +1,4 @@
-// Role-based authorization middleware
+
 const authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
@@ -7,6 +7,5 @@ const authorize = (...roles) => {
     next();
   };
 };
-
 
 module.exports = authorize;

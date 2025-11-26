@@ -1,6 +1,5 @@
 const pool = require('../config/database');
 
-// Logging middleware
 const logRequest = async (req, res, next) => {
   if (req.user) {
     try {
