@@ -2,7 +2,12 @@
 ### Use with REST Client extension in VS Code
 ### Base URL
 @baseUrl = http://localhost:3000/api
-@token = YOUR_JWT_TOKEN_HERE
+
+### ⭐ DYNAMIC TOKEN USAGE:
+### 1. Click "Send Request" on any login request below
+### 2. The token will AUTOMATICALLY update in @token above
+### 3. All other requests will use the new token!
+### 4. No manual copy-paste needed!
 
 ### ==================== AUTHENTICATION ====================
 
@@ -23,8 +28,8 @@ POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-  "full_name": "Dr. Sarah Mahmoud",
-  "email": "dr.sarah@example.com",
+  "full_name": "Dr. Mohammad Amen",
+  "email": "dr.mohammad@example.com",
   "password": "DocPass123!",
   "role": "doctor",
   "phone": "+970599234567"
@@ -48,9 +53,12 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "email": "ahmad@example.com",
+  "email": "ahmad1@example.com",
   "password": "SecurePass123!"
 }
+
+###
+# @token = {{loginPatient.response.body.token}}
 
 ### Login as Doctor
 # @name loginDoctor
@@ -58,9 +66,12 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "email": "dr.sarah@example.com",
+  "email": "dr.mohammad@example.com",
   "password": "DocPass123!"
 }
+
+###
+@token = {{loginDoctor.response.body.token}}
 
 ### Login as Donor
 # @name loginDonor
@@ -72,11 +83,15 @@ Content-Type: application/json
   "password": "DonorPass123!"
 }
 
+###
+# @token = {{loginDonor.response.body.token}}
+
 ### ==================== USER PROFILE ====================
 
 ### Get Current User Profile
 GET {{baseUrl}}/users/me
 Authorization: Bearer {{token}}
+
 
 ### Update User Profile
 PUT {{baseUrl}}/users/me
