@@ -1,6 +1,5 @@
 const pool = require('../config/database');
 
-// Get current user
 exports.getMe = async (req, res) => {
   try {
     const [users] = await pool.execute(
@@ -18,7 +17,6 @@ exports.getMe = async (req, res) => {
   }
 };
 
-// Update user profile
 exports.updateProfile = async (req, res) => {
   try {
     const { full_name, phone } = req.body;
