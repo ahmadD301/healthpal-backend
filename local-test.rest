@@ -2,7 +2,7 @@
 ### Use with REST Client extension in VS Code
 ### Base URL
 @baseUrl = http://localhost:3000/api
-@token = YOUR_JWT_TOKEN_HERE
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwiZW1haWwiOiJhaG1hZEBleGFtcGxlLmNvbSIsInJvbGUiOiJwYXRpZW50IiwiaWF0IjoxNzY0NzA4NTc1LCJleHAiOjE3NjQ3OTQ5NzV9.DozybIWZxRY1r_kHnzkdnASx79J71pNlORcZhpyBWZU
 
 ### ==================== AUTHENTICATION ====================
 
@@ -49,7 +49,7 @@ Content-Type: application/json
 
 {
   "email": "ahmad@example.com",
-  "password": "SecurePass123!"
+  "password": "123123"
 }
 
 ### Login as Doctor
@@ -86,6 +86,17 @@ Content-Type: application/json
 {
   "full_name": "Ahmad Hassan Updated",
   "phone": "+970599999999"
+}
+
+### Change Password
+POST {{baseUrl}}/users/change-password
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "currentPassword": "SecurePass123!",
+  "newPassword": "NewSecurePass456!",
+  "confirmPassword": "NewSecurePass456!"
 }
 
 ### ==================== PATIENT PROFILE ====================
@@ -137,7 +148,7 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "doctor_id": 2,
+  "doctor_id": 17,
   "consultation_date": "2025-11-15 14:00:00",
   "mode": "video",
   "notes": "Experiencing severe headaches for the past week"
@@ -188,7 +199,7 @@ Content-Type: application/json
 GET {{baseUrl}}/sponsorships
 Authorization: Bearer {{token}}
 
-### Donate to Sponsorship (Donor)
+### Donate to Sponsorship (Donor) - OLD ENDPOINT
 POST {{baseUrl}}/sponsorships/1/donate
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -196,6 +207,67 @@ Content-Type: application/json
 {
   "amount": 500.00,
   "payment_method": "credit_card"
+}
+
+### ==================== DONATIONS (NEW) ====================
+
+### Make a Donation (Donor) - CARD Payment
+POST {{baseUrl}}/donations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "sponsorship_id": 1,
+  "amount": 500.00,
+  "payment_method": "card"
+}
+
+### Make a Donation (Donor) - BANK Payment
+POST {{baseUrl}}/donations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "sponsorship_id": 1,
+  "amount": 750.00,
+  "payment_method": "bank"
+}
+
+### View Donation History (Donor)
+GET {{baseUrl}}/donations/history
+Authorization: Bearer {{token}}
+
+### Get All Donations for a Sponsorship
+GET {{baseUrl}}/donations/sponsorship/1
+Authorization: Bearer {{token}}
+
+### Get Donation Statistics by Payment Method
+GET {{baseUrl}}/donations/stats
+Authorization: Bearer {{token}}
+
+### ==================== SPONSORSHIPS ====================
+
+### Get Sponsorship Details with Donation History
+GET {{baseUrl}}/sponsorships/1
+Authorization: Bearer {{token}}
+
+### Initiate Payment (Create Payment Intent)
+POST {{baseUrl}}/sponsorships/1/payment/initiate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 100.00
+}
+
+### Confirm Donation (Confirm Payment)
+POST {{baseUrl}}/sponsorships/1/payment/confirm
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "paymentIntentId": "pi_1234567890",
+  "amount": 100.00
 }
 
 ### ==================== MEDICINE REQUESTS ====================
@@ -316,7 +388,124 @@ Content-Type: application/json
 }
 
 ### Get My Mental Health Sessions
-GET {{baseUrl}}/mental-health-sessions
+GET {{baseUrl}}/mental-health/sessions
+Authorization: Bearer {{token}}
+
+### ==================== SUPPORT GROUPS ====================
+
+### Create Support Group (Counselor/Doctor)
+POST {{baseUrl}}/mental-health/support-groups
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Diabetes Support Group",
+  "description": "A supportive community for people managing diabetes and sharing experiences",
+  "category": "Chronic Diseases",
+  "isAnonymous": false
+}
+
+### Get All Support Groups
+GET {{baseUrl}}/mental-health/support-groups
+Authorization: Bearer {{token}}
+
+### Get Support Groups by Category
+GET {{baseUrl}}/mental-health/support-groups?category=Mental Health
+Authorization: Bearer {{token}}
+
+### Get Support Group Details
+GET {{baseUrl}}/mental-health/support-groups/1
+Authorization: Bearer {{token}}
+
+### Join Support Group
+POST {{baseUrl}}/mental-health/support-groups/1/join
+Authorization: Bearer {{token}}
+
+### Leave Support Group
+POST {{baseUrl}}/mental-health/support-groups/1/leave
+Authorization: Bearer {{token}}
+
+### ==================== GROUP MESSAGING ====================
+
+### Send Message to Support Group
+POST {{baseUrl}}/mental-health/support-groups/1/messages
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "groupId": 1,
+  "messageText": "Hi everyone, I wanted to share my experience managing diabetes..."
+}
+
+### Get Support Group Messages
+GET {{baseUrl}}/mental-health/support-groups/1/messages
+Authorization: Bearer {{token}}
+
+### Get Support Group Messages with Pagination
+GET {{baseUrl}}/mental-health/support-groups/1/messages?page=1&limit=20
+Authorization: Bearer {{token}}
+
+### ==================== THERAPY RESOURCES ====================
+
+### Create Therapy Resource (Counselor/Doctor)
+POST {{baseUrl}}/mental-health/resources
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Anxiety Management Techniques",
+  "description": "Learn proven methods to manage anxiety and stress",
+  "type": "article",
+  "category": "Mental Health",
+  "content": "Anxiety management involves breathing exercises, meditation, and cognitive behavioral therapy...",
+  "isAnonymous": false
+}
+
+### Get All Therapy Resources
+GET {{baseUrl}}/mental-health/resources
+Authorization: Bearer {{token}}
+
+### Get Resources by Type
+GET {{baseUrl}}/mental-health/resources?type=article
+Authorization: Bearer {{token}}
+
+### Get Resources by Category
+GET {{baseUrl}}/mental-health/resources?category=Mental Health
+Authorization: Bearer {{token}}
+
+### Get Therapy Resource Details
+GET {{baseUrl}}/mental-health/resources/1
+Authorization: Bearer {{token}}
+
+### ==================== ANONYMOUS THERAPY CHAT ====================
+
+### Start Anonymous Therapy Chat
+POST {{baseUrl}}/mental-health/anonymous-chat
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "counselorId": 5,
+  "concern": "I'm struggling with depression and need to talk to someone"
+}
+
+### Send Message in Anonymous Chat
+POST {{baseUrl}}/mental-health/anonymous-chat/1/messages
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "chatId": 1,
+  "messageText": "I've been feeling really down lately and don't know how to cope",
+  "isFromCounselor": false
+}
+
+### Get Anonymous Chat Messages
+GET {{baseUrl}}/mental-health/anonymous-chat/1/messages
+Authorization: Bearer {{token}}
+
+### End Anonymous Chat Session
+POST {{baseUrl}}/mental-health/anonymous-chat/1/end
 Authorization: Bearer {{token}}
 
 ### ==================== NGO ROUTES ====================
@@ -425,35 +614,73 @@ Authorization: Bearer {{token}}
 ### Get Disease Outbreak Data (COVID-19)
 GET {{baseUrl}}/external/disease-outbreaks
 
+### Get WHO Health Data
+GET {{baseUrl}}/external/who-health-data
+Authorization: Bearer {{token}}
+
+### Get WHO Health Data with Specific Indicator
+GET {{baseUrl}}/external/who-health-data?indicator=WHOSIS_000001
+Authorization: Bearer {{token}}
+
+### ==================== NOTIFICATION TESTING ====================
+
+### Test Email Configuration (Admin)
+POST {{baseUrl}}/external/test/email
+Authorization: Bearer {{token}}
+
+### Test SMS Configuration (Admin)
+POST {{baseUrl}}/external/test/sms
+Authorization: Bearer {{token}}
+
+### Send Test Email (Admin)
+POST {{baseUrl}}/external/send/test-email
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "subject": "HealthPal Test Email",
+  "message": "<h2>This is a test email from HealthPal</h2><p>Email notifications are working!</p>"
+}
+
+### Send Test SMS (Admin)
+POST {{baseUrl}}/external/send/test-sms
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "phone": "+970599123456",
+  "message": "HealthPal: This is a test SMS notification."
+}
+
+### ==================== STRIPE WEBHOOK ====================
+
+### Stripe Webhook (Payment Success)
+POST {{baseUrl}}/external/webhooks/stripe
+Content-Type: application/json
+stripe-signature: t=1234567890,v1=abc123def456
+
+{
+  "type": "payment_intent.succeeded",
+  "data": {
+    "object": {
+      "id": "pi_1234567890",
+      "status": "succeeded",
+      "amount": 10000,
+      "currency": "usd"
+    }
+  }
+}
+
 ### Get Health News (General)
 GET {{baseUrl}}/external/health-news?topic=health&language=en
 
 ### Get Health News (Specific Topic)
 GET {{baseUrl}}/external/health-news?topic=diabetes&language=en
 
-### Send SMS Notification (Admin Only)
-POST {{baseUrl}}/external/send-sms
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "phoneNumber": "+970599123456",
-  "message": "Your consultation is scheduled for tomorrow at 2 PM"
-}
-
 ### Geocode Location
 GET {{baseUrl}}/external/geocode?address=Ramallah, West Bank
 Authorization: Bearer {{token}}
-
-### Process Payment (Donation)
-POST {{baseUrl}}/external/process-payment
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "amount": 50.00,
-  "paymentMethodId": "pm_card_visa"
-}
 
 ### Broadcast Emergency Alert (Admin Only)
 POST {{baseUrl}}/external/emergency-alert

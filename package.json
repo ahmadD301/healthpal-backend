@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon src/server.js",
+    "cli": "node cli.js",
+    "check:controllers": "node tools/check_controllers.js",
     "test": "jest --coverage",
     "test:watch": "jest --watch"
   },
@@ -13,23 +15,25 @@
     "healthcare",
     "telemedicine",
     "api",
-    "rest"],
+    "rest"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.6.2",
+    "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "mysql2": "^3.15.3",
-    "sequelize": "^6.37.7",
-    "bcrypt": "^5.1.1",
-    "jsonwebtoken": "^9.0.2",
+    "express-rate-limit": "^7.1.5",
     "express-validator": "^7.0.1",
     "helmet": "^7.1.0",
-    "express-rate-limit": "^7.1.5",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.15.3",
+    "sequelize": "^6.37.7",
+    "stripe": "^20.0.0",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.0",
-    "axios": "^1.6.2"
+    "swagger-ui-express": "^5.0.0"
   },
   "devDependencies": {
     "eslint": "^9.39.0",

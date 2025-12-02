@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+
+/**
+ * HealthPal CLI - Simple launcher
+ * This file makes the CLI executable from anywhere
+ */
+
+require('../cli.js');

@@ -1,18 +1,30 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-// import routes from "./routes/index.js";
-
-dotenv.config();
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
-app.use(cors());
-app.use(express.json());
 
-app.use('/api/docs', (req, res) => {
-  res.send('API Documentation would be here.');
+// Middleware
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  credentials: true,
+  optionsSuccessStatus: 200
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Welcome to HealthPal API',
+    version: '1.0.0',
+    status: 'running'
+  });
 });
 
-// app.use("/api", routes);
+// API routes will be mounted from server.js
+app.use('/api/docs', (req, res) => {
+  res.send('API Documentation: Visit /api-docs for Swagger UI');
+});
 
-export default app;
+module.exports = app;

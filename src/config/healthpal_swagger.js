@@ -1,6 +1,3 @@
-const swaggerJsDoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
-
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -153,9 +150,7 @@ const swaggerOptions = {
       { name: 'NGOs', description: 'NGO and medical mission management' }
     ]
   },
-  apis: ['./server.js', './routes/*.js'] // Path to API docs
+  apis: ['./src/server.js', './src/routes/*.js'] // Path to API docs
 };
 
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
-
-module.exports = { swaggerUi, swaggerDocs };
+module.exports = swaggerOptions;
