@@ -3,12 +3,19 @@ const pool = require('../config/database');
 // Create health guide
 exports.create = async (req, res) => {
   try {
-    const { title, description, category, language } = req.body;
+    const { title, description, content, category, language } = req.body;
+    
+    // Accept both 'description' and 'content' field names
+    const guideContent = description || content;
+
+    if (!title || !guideContent) {
+      return res.status(400).json({ error: 'Title and content are required' });
+    }
 
     const [result] = await pool.execute(
       `INSERT INTO health_guides (title, description, category, language, created_by) 
        VALUES (?, ?, ?, ?, ?)`,
-      [title, description, category, language, req.user.id]
+      [title, guideContent, category, language, req.user.id]
     );
 
     res.status(201).json({ 
@@ -16,6 +23,7 @@ exports.create = async (req, res) => {
       guideId: result.insertId 
     });
   } catch (err) {
+    console.error('Error creating health guide:', err);
     res.status(500).json({ error: 'Failed to create guide', details: err.message });
   }
 };

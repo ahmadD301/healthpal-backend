@@ -22,6 +22,15 @@ exports.book = async (req, res) => {
       });
     }
 
+    // Validate consultation mode
+    const validModes = ['chat', 'audio', 'video'];
+    if (!validModes.includes(mode)) {
+      return res.status(400).json({ 
+        error: 'Booking failed', 
+        details: `Invalid mode. Must be: ${validModes.join(', ')}` 
+      });
+    }
+
     // Check if doctor exists
     const [doctors] = await pool.execute(
       'SELECT id FROM doctor_profiles WHERE user_id = ?',
@@ -63,6 +72,7 @@ exports.getAll = async (req, res) => {
         JOIN doctor_profiles d ON c.doctor_id = d.user_id 
         JOIN users u ON c.doctor_id = u.id 
         WHERE c.patient_id = ?
+        ORDER BY c.consultation_date DESC
       `;
       params = [req.user.id];
     } else if (req.user.role === 'doctor') {
@@ -71,6 +81,7 @@ exports.getAll = async (req, res) => {
         FROM consultations c 
         JOIN users u ON c.patient_id = u.id 
         WHERE c.doctor_id = ?
+        ORDER BY c.consultation_date DESC
       `;
       params = [req.user.id];
     } else {
@@ -78,7 +89,14 @@ exports.getAll = async (req, res) => {
     }
 
     const [consultations] = await pool.execute(query, params);
-    res.json(consultations);
+    
+    // Ensure status is always set (default to 'pending' if NULL)
+    const formattedConsultations = consultations.map(c => ({
+      ...c,
+      status: c.status || 'pending'
+    }));
+    
+    res.json(formattedConsultations);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch consultations', details: err.message });
   }

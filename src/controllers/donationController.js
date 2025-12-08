@@ -157,17 +157,21 @@ exports.createDonation = async (req, res) => {
 exports.getDonationHistory = async (req, res) => {
   try {
     const donor_id = req.user.id;
+    console.log('Fetching donation history for donor:', donor_id);
 
+    // Get donations with sponsorship status
     const [donations] = await pool.execute(
-      `SELECT t.id, t.sponsorship_id, t.amount, t.payment_method, t.status, t.created_at,
-              s.treatment_type, u.full_name as patient_name, s.goal_amount, s.donated_amount
+      `SELECT t.id, t.sponsorship_id, t.amount, t.payment_method, t.created_at,
+              s.treatment_type, s.status as sponsorship_status, u.full_name as patient_name, s.goal_amount, s.donated_amount
        FROM transactions t
-       JOIN sponsorships s ON t.sponsorship_id = s.id
-       JOIN users u ON s.patient_id = u.id
-       WHERE t.donor_id = ? AND t.status = 'completed'
+       LEFT JOIN sponsorships s ON t.sponsorship_id = s.id
+       LEFT JOIN users u ON s.patient_id = u.id
+       WHERE t.donor_id = ?
        ORDER BY t.created_at DESC`,
       [donor_id]
     );
+
+    console.log('Found donations with details:', donations.length);
 
     res.json({
       donations: donations,

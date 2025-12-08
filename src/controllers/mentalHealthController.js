@@ -93,7 +93,13 @@ exports.getAll = async (req, res) => {
       [req.user.id]
     );
 
-    res.json(sessions);
+    // Ensure status has a default value if NULL
+    const sessionsWithDefaults = sessions.map(s => ({
+      ...s,
+      status: s.status || 'scheduled'
+    }));
+
+    res.json(sessionsWithDefaults);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch sessions', details: err.message });
   }

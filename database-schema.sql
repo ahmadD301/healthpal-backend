@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS consultations (
   doctor_id INT NOT NULL,
   consultation_date DATETIME NOT NULL,
   mode ENUM('video', 'audio', 'chat') NOT NULL,
-  status ENUM('pending', 'accepted', 'completed', 'cancelled') DEFAULT 'pending',
+  status ENUM('pending', 'accepted', 'in-progress', 'completed', 'cancelled') DEFAULT 'pending' NOT NULL,
   notes TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (patient_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS consultations (
 );
 
 -- ===================================================
--- 5. MESSAGES
+-- 5. MESSAGES (Consultation Text Messages)
 -- ===================================================
 CREATE TABLE IF NOT EXISTS messages (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -86,7 +86,75 @@ CREATE TABLE IF NOT EXISTS messages (
 );
 
 -- ===================================================
--- 6. SPONSORSHIPS
+-- 5A. AUDIO MESSAGES (Consultation Audio Messages)
+-- ===================================================
+CREATE TABLE IF NOT EXISTS audio_messages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  consultation_id INT NOT NULL,
+  sender_id INT NOT NULL,
+  audio_url VARCHAR(500) NOT NULL,
+  duration_seconds INT,
+  sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (consultation_id) REFERENCES consultations(id) ON DELETE CASCADE,
+  FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_consultation (consultation_id),
+  INDEX idx_sender (sender_id)
+);
+
+-- ===================================================
+-- 5B. VIDEO MESSAGES (Consultation Video Messages)
+-- ===================================================
+CREATE TABLE IF NOT EXISTS video_messages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  consultation_id INT NOT NULL,
+  sender_id INT NOT NULL,
+  video_url VARCHAR(500) NOT NULL,
+  duration_seconds INT,
+  sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (consultation_id) REFERENCES consultations(id) ON DELETE CASCADE,
+  FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_consultation (consultation_id),
+  INDEX idx_sender (sender_id)
+);
+
+-- ===================================================
+-- 6. VIDEO CALLS
+-- ===================================================
+CREATE TABLE IF NOT EXISTS video_calls (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  consultation_id INT NOT NULL,
+  initiator_id INT NOT NULL,
+  started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  ended_at TIMESTAMP NULL,
+  duration_seconds INT,
+  status ENUM('initiated', 'active', 'completed', 'failed') DEFAULT 'initiated' NOT NULL,
+  FOREIGN KEY (consultation_id) REFERENCES consultations(id) ON DELETE CASCADE,
+  FOREIGN KEY (initiator_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_consultation (consultation_id),
+  INDEX idx_initiator (initiator_id),
+  INDEX idx_status (status)
+);
+
+-- ===================================================
+-- 7. AUDIO CALLS
+-- ===================================================
+CREATE TABLE IF NOT EXISTS audio_calls (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  consultation_id INT NOT NULL,
+  initiator_id INT NOT NULL,
+  started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  ended_at TIMESTAMP NULL,
+  duration_seconds INT,
+  status ENUM('initiated', 'active', 'completed', 'failed') DEFAULT 'initiated' NOT NULL,
+  FOREIGN KEY (consultation_id) REFERENCES consultations(id) ON DELETE CASCADE,
+  FOREIGN KEY (initiator_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_consultation (consultation_id),
+  INDEX idx_initiator (initiator_id),
+  INDEX idx_status (status)
+);
+
+-- ===================================================
+-- 8. SPONSORSHIPS
 -- ===================================================
 CREATE TABLE IF NOT EXISTS sponsorships (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -103,7 +171,7 @@ CREATE TABLE IF NOT EXISTS sponsorships (
 );
 
 -- ===================================================
--- 7. TRANSACTIONS (Donations)
+-- 9. TRANSACTIONS (Donations)
 -- ===================================================
 CREATE TABLE IF NOT EXISTS transactions (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -124,7 +192,7 @@ CREATE TABLE IF NOT EXISTS transactions (
 );
 
 -- ===================================================
--- 8. MEDICINE REQUESTS
+-- 10. MEDICINE REQUESTS
 -- ===================================================
 CREATE TABLE IF NOT EXISTS medicine_requests (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -141,7 +209,7 @@ CREATE TABLE IF NOT EXISTS medicine_requests (
 );
 
 -- ===================================================
--- 9. EQUIPMENT REGISTRY
+-- 11. EQUIPMENT REGISTRY
 -- ===================================================
 CREATE TABLE IF NOT EXISTS equipment_registry (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -159,7 +227,24 @@ CREATE TABLE IF NOT EXISTS equipment_registry (
 );
 
 -- ===================================================
--- 10. HEALTH GUIDES
+-- 11A. EQUIPMENT REQUESTS
+-- ===================================================
+CREATE TABLE IF NOT EXISTS equipment_requests (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  ngo_id INT NOT NULL,
+  item_name VARCHAR(100) NOT NULL,
+  quantity INT NOT NULL,
+  purpose TEXT,
+  status ENUM('pending', 'approved', 'rejected', 'completed') DEFAULT 'pending',
+  requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (ngo_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_ngo_id (ngo_id),
+  INDEX idx_status (status)
+);
+
+-- ===================================================
+-- 12. HEALTH GUIDES
 -- ===================================================
 CREATE TABLE IF NOT EXISTS health_guides (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -176,7 +261,7 @@ CREATE TABLE IF NOT EXISTS health_guides (
 );
 
 -- ===================================================
--- 11. ALERTS
+-- 13. ALERTS
 -- ===================================================
 CREATE TABLE IF NOT EXISTS alerts (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -192,7 +277,7 @@ CREATE TABLE IF NOT EXISTS alerts (
 );
 
 -- ===================================================
--- 12. MENTAL HEALTH SESSIONS
+-- 14. MENTAL HEALTH SESSIONS
 -- ===================================================
 CREATE TABLE IF NOT EXISTS mental_health_sessions (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -212,25 +297,28 @@ CREATE TABLE IF NOT EXISTS mental_health_sessions (
 );
 
 -- ===================================================
--- 13. NGOs
+-- 15. NGOs
 -- ===================================================
 CREATE TABLE IF NOT EXISTS ngos (
   id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
   name VARCHAR(255) NOT NULL,
   contact_info VARCHAR(255),
   verified BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_verified (verified)
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_verified (verified),
+  INDEX idx_user_id (user_id)
 );
 
 -- ===================================================
--- 14. NGO MISSIONS
+-- 16. NGO MISSIONS
 -- ===================================================
 CREATE TABLE IF NOT EXISTS ngo_missions (
   id INT AUTO_INCREMENT PRIMARY KEY,
   ngo_id INT NOT NULL,
   mission_type VARCHAR(100) NOT NULL,
-  mission_date DATE NOT NULL,
+  mission_date DATETIME NOT NULL,
   location VARCHAR(255) NOT NULL,
   doctor_needed BOOLEAN DEFAULT FALSE,
   description TEXT,
@@ -243,7 +331,7 @@ CREATE TABLE IF NOT EXISTS ngo_missions (
 );
 
 -- ===================================================
--- 15. LOGS
+-- 17. LOGS
 -- ===================================================
 CREATE TABLE IF NOT EXISTS logs (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -257,7 +345,7 @@ CREATE TABLE IF NOT EXISTS logs (
 );
 
 -- ===================================================
--- 16. SUPPORT GROUPS
+-- 18. SUPPORT GROUPS
 -- ===================================================
 CREATE TABLE IF NOT EXISTS support_groups (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -274,7 +362,7 @@ CREATE TABLE IF NOT EXISTS support_groups (
 );
 
 -- ===================================================
--- 17. SUPPORT GROUP MEMBERS
+-- 19. SUPPORT GROUP MEMBERS
 -- ===================================================
 CREATE TABLE IF NOT EXISTS support_group_members (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -289,7 +377,7 @@ CREATE TABLE IF NOT EXISTS support_group_members (
 );
 
 -- ===================================================
--- 18. SUPPORT GROUP MESSAGES
+-- 20. SUPPORT GROUP MESSAGES
 -- ===================================================
 CREATE TABLE IF NOT EXISTS support_group_messages (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -305,7 +393,7 @@ CREATE TABLE IF NOT EXISTS support_group_messages (
 );
 
 -- ===================================================
--- 19. THERAPY RESOURCES
+-- 21. THERAPY RESOURCES
 -- ===================================================
 CREATE TABLE IF NOT EXISTS therapy_resources (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -321,7 +409,7 @@ CREATE TABLE IF NOT EXISTS therapy_resources (
 );
 
 -- ===================================================
--- 20. ANONYMOUS THERAPY CHAT
+-- 22. ANONYMOUS THERAPY CHAT
 -- ===================================================
 CREATE TABLE IF NOT EXISTS anonymous_therapy_chats (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -337,7 +425,7 @@ CREATE TABLE IF NOT EXISTS anonymous_therapy_chats (
 );
 
 -- ===================================================
--- 21. ANONYMOUS CHAT MESSAGES
+-- 23. ANONYMOUS CHAT MESSAGES
 -- ===================================================
 CREATE TABLE IF NOT EXISTS anonymous_chat_messages (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -352,6 +440,70 @@ CREATE TABLE IF NOT EXISTS anonymous_chat_messages (
 );
 
 -- ===================================================
+-- 24. ANONYMOUS AUDIO THERAPY CHATS
+-- ===================================================
+CREATE TABLE IF NOT EXISTS anonymous_audio_therapy_chats (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  counselor_id INT,
+  status ENUM('active', 'closed') DEFAULT 'active',
+  started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  ended_at TIMESTAMP NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (counselor_id) REFERENCES users(id) ON DELETE SET NULL,
+  INDEX idx_user (user_id),
+  INDEX idx_status (status)
+);
+
+-- ===================================================
+-- 25. ANONYMOUS AUDIO MESSAGES
+-- ===================================================
+CREATE TABLE IF NOT EXISTS anonymous_audio_messages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  chat_id INT NOT NULL,
+  sender_id INT NOT NULL,
+  audio_url VARCHAR(500) NOT NULL,
+  duration_seconds INT,
+  sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (chat_id) REFERENCES anonymous_audio_therapy_chats(id) ON DELETE CASCADE,
+  FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_chat (chat_id),
+  INDEX idx_sender (sender_id)
+);
+
+-- ===================================================
+-- 26. ANONYMOUS VIDEO THERAPY CHATS
+-- ===================================================
+CREATE TABLE IF NOT EXISTS anonymous_video_therapy_chats (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  counselor_id INT,
+  status ENUM('active', 'closed') DEFAULT 'active',
+  started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  ended_at TIMESTAMP NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (counselor_id) REFERENCES users(id) ON DELETE SET NULL,
+  INDEX idx_user (user_id),
+  INDEX idx_status (status)
+);
+
+-- ===================================================
+-- 27. ANONYMOUS VIDEO MESSAGES
+-- ===================================================
+CREATE TABLE IF NOT EXISTS anonymous_video_messages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  chat_id INT NOT NULL,
+  sender_id INT NOT NULL,
+  video_url VARCHAR(500) NOT NULL,
+  duration_seconds INT,
+  sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (chat_id) REFERENCES anonymous_video_therapy_chats(id) ON DELETE CASCADE,
+  FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_chat (chat_id),
+  INDEX idx_sender (sender_id)
+);
+
+-- ===================================================
 -- Create Indexes for Better Performance
 -- ===================================================
 
@@ -360,7 +512,33 @@ CREATE INDEX idx_consultations_patient_date ON consultations(patient_id, consult
 CREATE INDEX idx_sponsorships_status ON sponsorships(status);
 CREATE INDEX idx_equipment_availability ON equipment_registry(available);
 CREATE INDEX idx_alerts_severity ON alerts(severity);
+CREATE INDEX idx_audio_messages_consultation ON audio_messages(consultation_id);
+CREATE INDEX idx_video_messages_consultation ON video_messages(consultation_id);
+CREATE INDEX idx_anonymous_audio_messages_chat ON anonymous_audio_messages(chat_id);
+CREATE INDEX idx_anonymous_video_messages_chat ON anonymous_video_messages(chat_id);
 
 -- ===================================================
--- END OF SCHEMA
+-- MIGRATIONS / ALTERATIONS
+-- ===================================================
+
+-- Migration 1: Add user_id to ngos table
+ALTER TABLE ngos ADD COLUMN IF NOT EXISTS user_id INT AFTER id;
+ALTER TABLE ngos ADD CONSTRAINT IF NOT EXISTS fk_ngos_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+ALTER TABLE ngos ADD INDEX IF NOT EXISTS idx_user_id (user_id);
+
+-- Migration 2: Add donation fields to transactions table
+ALTER TABLE transactions 
+ADD COLUMN IF NOT EXISTS status ENUM('pending', 'completed', 'failed') DEFAULT 'completed';
+
+ALTER TABLE transactions 
+ADD COLUMN IF NOT EXISTS stripe_payment_id VARCHAR(255);
+
+ALTER TABLE transactions 
+ADD COLUMN IF NOT EXISTS stripe_charge_id VARCHAR(255);
+
+ALTER TABLE transactions 
+ADD INDEX IF NOT EXISTS idx_status (status);
+
+-- ===================================================
+-- END OF SCHEMA (27 TABLES TOTAL)
 -- ===================================================

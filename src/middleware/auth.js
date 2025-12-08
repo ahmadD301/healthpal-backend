@@ -34,9 +34,11 @@ const authenticate = async (req, res, next) => {
     }
     
     const decoded = jwt.verify(token, getJwtSecret());
+    console.log('[auth] User authenticated:', decoded);
     req.user = decoded;
     next();
   } catch (err) {
+    console.error('[auth] Authentication error:', err.message);
     if (err.name === 'TokenExpiredError') {
       return res.status(401).json({ 
         error: 'Token expired',
