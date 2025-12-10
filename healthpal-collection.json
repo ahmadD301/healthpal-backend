@@ -1,0 +1,1258 @@
+{
+  "info": {
+    "_postman_id": "e4d5b1c6-0000-4000-8000-healthpal-api",
+    "name": "HealthPal API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Complete Postman collection for the HealthPal backend REST API."
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Test Patient\",\n  \"email\": \"patient@example.com\",\n  \"password\": \"Password123\",\n  \"role\": \"patient\",\n  \"phone\": \"+970599000000\"\n}"
+            },
+            "description": "Register a new user (patient, doctor, donor, ngo, admin)."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "originalRequest": {},
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"message\": \"User registered successfully\",\n  \"userId\": 1,\n  \"user\": {\n    \"id\": 1,\n    \"full_name\": \"Test Patient\",\n    \"email\": \"patient@example.com\",\n    \"role\": \"patient\",\n    \"phone\": \"+970599000000\",\n    \"verified\": false\n  }\n}"
+            },
+            {
+              "name": "409 Email already registered",
+              "originalRequest": {},
+              "status": "Conflict",
+              "code": 409,
+              "body": "{\n  \"error\": \"Email already registered\",\n  \"details\": \"Please use a different email or login instead\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"patient@example.com\",\n  \"password\": \"Password123\"\n}"
+            },
+            "description": "Login and obtain JWT access token."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"message\": \"Login successful\",\n  \"token\": \"<JWT_TOKEN>\",\n  \"user\": {\n    \"id\": 1,\n    \"full_name\": \"Test Patient\",\n    \"email\": \"patient@example.com\",\n    \"phone\": \"+970599000000\",\n    \"role\": \"patient\",\n    \"verified\": false\n  }\n}"
+            },
+            {
+              "name": "401 Invalid credentials",
+              "status": "Unauthorized",
+              "code": 401,
+              "body": "{\n  \"error\": \"Invalid credentials\",\n  \"message\": \"Email or password is incorrect\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "refresh"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{access_token}}\"\n}"
+            },
+            "description": "Refresh an access token (no auth header required, uses token in body)."
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "me"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "me"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Updated Name\",\n  \"phone\": \"+970599111111\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/change-password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "change-password"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"Password123\",\n  \"newPassword\": \"NewPass123\",\n  \"confirmPassword\": \"NewPass123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Patients",
+      "item": [
+        {
+          "name": "Get Patient Profile by User ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{doctor_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/patients/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create/Update My Patient Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{patient_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/patients/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients", "profile"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"age\": 30,\n  \"gender\": \"male\",\n  \"blood_type\": \"A+\",\n  \"medical_history\": \"Diabetes Type 2\",\n  \"location\": \"Ramallah\"\n}"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Doctors",
+      "item": [
+        {
+          "name": "List Available Doctors",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{patient_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/doctors?specialty=Cardiology",
+              "host": ["{{base_url}}"],
+              "path": ["api", "doctors"],
+              "query": [
+                { "key": "specialty", "value": "Cardiology" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create/Update My Doctor Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{doctor_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/doctors/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "doctors", "profile"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"specialty\": \"Cardiology\",\n  \"license_no\": \"PS-MED-12345\",\n  \"experience_years\": 8,\n  \"consultation_fee\": 50.0\n}"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Consultations & Messaging & Calls",
+      "item": [
+        {
+          "name": "Book Consultation (patient)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{patient_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/consultations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "consultations"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doctor_id\": 2,\n  \"consultation_date\": \"2025-02-20T10:00:00Z\",\n  \"mode\": \"video\",\n  \"notes\": \"Severe headache\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get My Consultations (patient/doctor)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/consultations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "consultations"]
+            }
+          }
+        },
+        {
+          "name": "Update Consultation Status (doctor)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{doctor_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/consultations/1/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "consultations", "1", "status"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"status\": \"accepted\" }"
+            }
+          }
+        },
+        {
+          "name": "Send Consultation Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{patient_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/consultations/1/messages",
+              "host": ["{{base_url}}"],
+              "path": ["api", "consultations", "1", "messages"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"message_text\": \"Hello doctor\" }"
+            }
+          }
+        },
+        {
+          "name": "Get Consultation Messages",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/consultations/1/messages",
+              "host": ["{{base_url}}"],
+              "path": ["api", "consultations", "1", "messages"]
+            }
+          }
+        },
+        {
+          "name": "Start Video Call",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/consultations/1/video-calls",
+              "host": ["{{base_url}}"],
+              "path": ["api", "consultations", "1", "video-calls"]
+            }
+          }
+        },
+        {
+          "name": "End Video Call",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/consultations/1/video-calls/end",
+              "host": ["{{base_url}}"],
+              "path": ["api", "consultations", "1", "video-calls", "end"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"callId\": 10, \"duration_seconds\": 600 }"
+            }
+          }
+        },
+        {
+          "name": "Start Audio Call",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/consultations/1/audio-calls",
+              "host": ["{{base_url}}"],
+              "path": ["api", "consultations", "1", "audio-calls"]
+            }
+          }
+        },
+        {
+          "name": "End Audio Call",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/consultations/1/audio-calls/end",
+              "host": ["{{base_url}}"],
+              "path": ["api", "consultations", "1", "audio-calls", "end"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"callId\": 5, \"duration_seconds\": 300 }"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Sponsorships & Donations",
+      "item": [
+        {
+          "name": "Create Sponsorship Campaign (patient)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{patient_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/sponsorships",
+              "host": ["{{base_url}}"],
+              "path": ["api", "sponsorships"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"treatment_type\": \"Kidney Dialysis\",\n  \"goal_amount\": 5000,\n  \"description\": \"Need support for regular dialysis sessions\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Open Sponsorships",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/sponsorships",
+              "host": ["{{base_url}}"],
+              "path": ["api", "sponsorships"]
+            }
+          }
+        },
+        {
+          "name": "Get Sponsorship by ID (with donations)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/sponsorships/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "sponsorships", "1"]
+            }
+          }
+        },
+        {
+          "name": "Initiate Stripe Payment (donor)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{donor_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/sponsorships/1/payment/initiate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "sponsorships", "1", "payment", "initiate"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"amount\": 50 }"
+            }
+          }
+        },
+        {
+          "name": "Confirm Donation (Stripe, donor)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{donor_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/sponsorships/1/payment/confirm",
+              "host": ["{{base_url}}"],
+              "path": ["api", "sponsorships", "1", "payment", "confirm"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentIntentId\": \"pi_12345\",\n  \"amount\": 50\n}"
+            }
+          }
+        },
+        {
+          "name": "Legacy Donate Endpoint (donor)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{donor_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/sponsorships/1/donate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "sponsorships", "1", "donate"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"amount\": 50, \"paymentIntentId\": \"pi_12345\" }"
+            }
+          }
+        },
+        {
+          "name": "Create Donation (simple card/bank, donor)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{donor_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/donations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "donations"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sponsorship_id\": 1,\n  \"amount\": 100,\n  \"payment_method\": \"card\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get My Donation History (donor)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{donor_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/donations/history",
+              "host": ["{{base_url}}"],
+              "path": ["api", "donations", "history"]
+            }
+          }
+        },
+        {
+          "name": "Get Donations for Sponsorship",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/donations/sponsorship/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "donations", "sponsorship", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Donation Stats (admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/donations/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "donations", "stats"]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Medicine Requests",
+      "item": [
+        {
+          "name": "Create Medicine Request (patient)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{patient_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/medicine-requests",
+              "host": ["{{base_url}}"],
+              "path": ["api", "medicine-requests"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"medicine_name\": \"Insulin\",\n  \"quantity\": 3,\n  \"urgency\": \"high\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Medicine Requests (filtered)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/medicine-requests?status=pending&urgency=high",
+              "host": ["{{base_url}}"],
+              "path": ["api", "medicine-requests"],
+              "query": [
+                { "key": "status", "value": "pending" },
+                { "key": "urgency", "value": "high" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Medicine Request Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/medicine-requests/1/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "medicine-requests", "1", "status"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"status\": \"fulfilled\" }"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Equipment & Equipment Requests",
+      "item": [
+        {
+          "name": "List Equipment (create entry)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/equipment",
+              "host": ["{{base_url}}"],
+              "path": ["api", "equipment"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"item_name\": \"Wheelchair\",\n  \"description\": \"Standard adult wheelchair\",\n  \"quantity\": 5,\n  \"location\": \"Gaza City\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Available Equipment",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/equipment?location=Gaza",
+              "host": ["{{base_url}}"],
+              "path": ["api", "equipment"],
+              "query": [{ "key": "location", "value": "Gaza" }]
+            }
+          }
+        },
+        {
+          "name": "NGO - List My Equipment Requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ngo_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/equipment-requests",
+              "host": ["{{base_url}}"],
+              "path": ["api", "equipment-requests"]
+            }
+          }
+        },
+        {
+          "name": "NGO - Create Equipment Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ngo_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/equipment-requests",
+              "host": ["{{base_url}}"],
+              "path": ["api", "equipment-requests"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"item_name\": \"Portable Oxygen Concentrator\",\n  \"quantity\": 2,\n  \"purpose\": \"Field missions\"\n}"
+            }
+          }
+        },
+        {
+          "name": "NGO - Update Equipment Request Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ngo_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/equipment-requests/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "equipment-requests", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"status\": \"completed\" }"
+            }
+          }
+        },
+        {
+          "name": "Admin - Get All Equipment Requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/equipment-requests/admin/all",
+              "host": ["{{base_url}}"],
+              "path": ["api", "equipment-requests", "admin", "all"]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Health Guides & Alerts",
+      "item": [
+        {
+          "name": "Create Health Guide (doctor/admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{doctor_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/health-guides",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health-guides"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Managing Diabetes\",\n  \"description\": \"Tips for managing type 2 diabetes.\",\n  \"category\": \"chronic-illness\",\n  \"language\": \"en\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Health Guides (public)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/health-guides?category=chronic-illness&language=en",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health-guides"],
+              "query": [
+                { "key": "category", "value": "chronic-illness" },
+                { "key": "language", "value": "en" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Alert (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/alerts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "alerts"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"air-quality\",\n  \"message\": \"High pollution levels in Gaza City\",\n  \"region\": \"Gaza\",\n  \"severity\": \"high\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Alerts (public)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/alerts?region=Gaza&severity=high",
+              "host": ["{{base_url}}"],
+              "path": ["api", "alerts"],
+              "query": [
+                { "key": "region", "value": "Gaza" },
+                { "key": "severity", "value": "high" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Mental Health",
+      "item": [
+        {
+          "name": "Schedule Mental Health Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{patient_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/mental-health/sessions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "mental-health", "sessions"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"counselor_id\": 3,\n  \"session_date\": \"2025-02-25 14:00\",\n  \"mode\": \"chat\",\n  \"notes\": \"Feeling anxious\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get My Mental Health Sessions",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{patient_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/mental-health/sessions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "mental-health", "sessions"]
+            }
+          }
+        },
+        {
+          "name": "Create Support Group (counselor/doctor)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{doctor_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/mental-health/support-groups",
+              "host": ["{{base_url}}"],
+              "path": ["api", "mental-health", "support-groups"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Anxiety Support Group\",\n  \"description\": \"Weekly group for anxiety support\",\n  \"category\": \"anxiety\",\n  \"isAnonymous\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "List Support Groups",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/mental-health/support-groups?category=anxiety",
+              "host": ["{{base_url}}"],
+              "path": ["api", "mental-health", "support-groups"],
+              "query": [{ "key": "category", "value": "anxiety" }]
+            }
+          }
+        },
+        {
+          "name": "Join Support Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/mental-health/support-groups/1/join",
+              "host": ["{{base_url}}"],
+              "path": ["api", "mental-health", "support-groups", "1", "join"]
+            }
+          }
+        },
+        {
+          "name": "Send Group Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/mental-health/support-groups/1/messages",
+              "host": ["{{base_url}}"],
+              "path": ["api", "mental-health", "support-groups", "1", "messages"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupId\": 1,\n  \"messageText\": \"Welcome to the group\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Group Messages",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/mental-health/support-groups/1/messages?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "mental-health", "support-groups", "1", "messages"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Therapy Resource",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{doctor_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/mental-health/resources",
+              "host": ["{{base_url}}"],
+              "path": ["api", "mental-health", "resources"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Breathing Exercises\",\n  \"description\": \"Simple breathing techniques.\",\n  \"type\": \"video\",\n  \"category\": \"relaxation\",\n  \"content\": \"https://example.com/video\",\n  \"isAnonymous\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Therapy Resources",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/mental-health/resources?type=video&category=relaxation",
+              "host": ["{{base_url}}"],
+              "path": ["api", "mental-health", "resources"],
+              "query": [
+                { "key": "type", "value": "video" },
+                { "key": "category", "value": "relaxation" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Start Anonymous Chat",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{patient_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/mental-health/anonymous-chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "mental-health", "anonymous-chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"counselorId\": 3,\n  \"concern\": \"I feel very stressed\"\n}"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "NGOs",
+      "item": [
+        {
+          "name": "Register NGO (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/ngos",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ngos"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Health NGO Palestine\",\n  \"contact_info\": \"+970599222222\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get NGOs",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/ngos",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ngos"]
+            }
+          }
+        },
+        {
+          "name": "Get Pending NGOs (admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/ngos/pending",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ngos", "pending"]
+            }
+          }
+        },
+        {
+          "name": "Approve NGO (admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/ngos/approve",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ngos", "approve"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"ngo_id\": 1 }"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "External APIs & Webhooks",
+      "item": [
+        {
+          "name": "Disease Outbreaks (public)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/external/disease-outbreaks",
+              "host": ["{{base_url}}"],
+              "path": ["api", "external", "disease-outbreaks"]
+            }
+          }
+        },
+        {
+          "name": "Get Medicine Info (auth)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/external/medicine-info/aspirin",
+              "host": ["{{base_url}}"],
+              "path": ["api", "external", "medicine-info", "aspirin"]
+            }
+          }
+        },
+        {
+          "name": "Get WHO Health Data (auth)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/external/who-health-data?indicator=WHOSIS_000001",
+              "host": ["{{base_url}}"],
+              "path": ["api", "external", "who-health-data"],
+              "query": [{ "key": "indicator", "value": "WHOSIS_000001" }]
+            }
+          }
+        },
+        {
+          "name": "Stripe Webhook (no auth, server-to-server)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/external/webhooks/stripe",
+              "host": ["{{base_url}}"],
+              "path": ["api", "external", "webhooks", "stripe"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"type\": \"payment_intent.succeeded\", \"data\": { \"object\": { \"id\": \"pi_123\" } } }"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Translation",
+      "item": [
+        {
+          "name": "Supported Languages (public)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/translate/supported-languages",
+              "host": ["{{base_url}}"],
+              "path": ["api", "translate", "supported-languages"]
+            }
+          }
+        },
+        {
+          "name": "Health Check (public)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/translate/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "translate", "health"]
+            }
+          }
+        },
+        {
+          "name": "Translate Text",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/translate/text",
+              "host": ["{{base_url}}"],
+              "path": ["api", "translate", "text"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"text\": \"headache\", \"target_language\": \"ar\" }"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Search",
+      "item": [
+        {
+          "name": "Global Search",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/search",
+              "host": ["{{base_url}}"],
+              "path": ["api", "search"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"search_term\": \"doctor\", \"limit\": 10 }"
+            }
+          }
+        },
+        {
+          "name": "Search Doctors",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/search/doctors",
+              "host": ["{{base_url}}"],
+              "path": ["api", "search", "doctors"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"specialty\": \"Cardiology\",\n  \"location\": \"Ramallah\",\n  \"min_rating\": 0,\n  \"max_fee\": 200,\n  \"search_term\": \"cardio\",\n  \"limit\": 20,\n  \"offset\": 0,\n  \"sort_by\": \"rating\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Search Suggestions (public)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/search/suggestions?term=heart",
+              "host": ["{{base_url}}"],
+              "path": ["api", "search", "suggestions"],
+              "query": [{ "key": "term", "value": "heart" }]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Misc",
+      "item": [
+        {
+          "name": "API Root Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            }
+          }
+        },
+        {
+          "name": "Swagger UI",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api-docs",
+              "host": ["{{base_url}}"],
+              "path": ["api-docs"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
