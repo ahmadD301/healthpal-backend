@@ -128,21 +128,32 @@ Server will start at `http://localhost:3000` with hot-reload enabled.
 npm start
 ```
 
-## Available Scripts
+## Getting Started
 
-- `npm start` - Start the production server
-- `npm run dev` - Start development server with nodemon
-- `npm test` - Run tests with coverage
-- `npm run test:watch` - Run tests in watch mode
-- `npm run cli` - Run CLI commands
-- `npm run check:controllers` - Check controllers for issues
+1. [Installation Guide](./WIKI_INSTALLATION.md) - Complete setup instructions
+2. Choose your testing method:
+   - [CLI Guide](./WIKI_CLI.md) - Interactive CLI (no Postman needed)
+   - [Postman](http://localhost:3000/api-docs) - API collection testing
+   - [Swagger UI](http://localhost:3000/api-docs) - Interactive API docs
+3. [Full Documentation](./WIKI_HOME.md) - Complete wiki documentation
 
-## API Documentation
+## Testing the API
 
-Interactive API documentation is available via Swagger UI at:
+### Option 1: Interactive CLI (Recommended for Development)
+```bash
+npm run cli
 ```
-http://localhost:3000/api-docs
+- Interactive command-line interface for testing all features
+- Perfect for development and demonstrations
+- No external tools required
+
+### Option 2: Postman/Insomnia
+```bash
+npm run dev
 ```
+- Import collection: `healthpal-collection.json`
+- Base URL: `http://localhost:3000`
+- Detailed API testing with request/response inspection
 
 ## Core Features
 
@@ -152,9 +163,14 @@ http://localhost:3000/api-docs
 - Role-based access control (RBAC)
 - Token refresh mechanism
 
-### Consultations
+### Consultations & Video/Audio Calls
 - Schedule and manage appointments
-- Real-time messaging during consultations
+- Three consultation modes: Chat, Audio Calls, Video Calls
+- Real-time messaging for chat consultations
+- Video and audio call management with call history
+- Doctor acceptance workflow for confirmed appointments
+- Automatic call ending (only 1 active call per consultation)
+- Call duration tracking and history
 - Consultation history and records
 
 ### User Profiles
@@ -241,11 +257,15 @@ npm run test:watch
 - POST `/auth/login` - Login user
 - POST `/auth/refresh-token` - Refresh access token
 
-### Consultations
-- GET `/consultations` - List consultations
-- POST `/consultations` - Create consultation
-- GET `/consultations/:id` - Get consultation details
-- PUT `/consultations/:id` - Update consultation
+### Video Calls
+- POST `/consultations/:id/video-calls` - Start video call
+- GET `/consultations/:id/video-calls` - Get video call history
+- PATCH `/consultations/:id/video-calls/end` - End video call
+
+### Audio Calls
+- POST `/consultations/:id/audio-calls` - Start audio call
+- GET `/consultations/:id/audio-calls` - Get audio call history
+- PATCH `/consultations/:id/audio-calls/end` - End audio call
 
 ### Users
 - GET `/users` - List users
@@ -313,3 +333,19 @@ ISC
 ## Support
 
 For issues and questions, please create an issue on the GitHub repository.
+
+## Recent Updates (December 2025)
+
+- Added Video Call feature with duration tracking and call history
+- Added Audio Call feature with automatic call management
+- Implemented Chat-based messaging independent from calls
+- Added Doctor acceptance workflow for consultations
+- Auto-end previous calls when starting new ones
+- Fixed consultation status lifecycle (pending → accepted → completed)
+- Enhanced call management with proper validation
+- Complete wiki documentation with 5 professional guides
+
+For detailed information on these features, see:
+- [Consultations & Video/Audio Calls Guide](./WIKI_CONSULTATIONS.md)
+- [CLI Testing Guide](./WIKI_CLI.md)
+- [Full Documentation Hub](./WIKI_HOME.md)
